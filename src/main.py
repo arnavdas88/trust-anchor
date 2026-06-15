@@ -11,7 +11,7 @@ from fastapi import FastAPI, HTTPException, Response
 import dns.name
 from dotenv import load_dotenv
 
-import utils
+from .utils import get_dnskey_rrset, get_ds_rrset, validate_dnskey_ds, build_xml
 
 
 # Load the .env file
@@ -38,10 +38,10 @@ async def refresh_xml():
         try:
             zone_name = dns.name.from_text(ZONE)
 
-            dnskey_rrset = utils.get_dnskey_rrset(zone_name)
-            ds_rrset = utils.get_ds_rrset(zone_name)
+            dnskey_rrset = get_dnskey_rrset(zone_name)
+            ds_rrset = get_ds_rrset(zone_name)
 
-            if not utils.validate_dnskey_ds(
+            if not validate_dnskey_ds(
                 dnskey_rrset,
                 ds_rrset,
                 zone_name
@@ -50,7 +50,7 @@ async def refresh_xml():
                     "DNSKEY/DS validation failed"
                 )
 
-            xml_root = utils.build_xml(
+            xml_root = build_xml(
                 zone_name.to_text(),
                 dnskey_rrset,
                 ds_rrset,
